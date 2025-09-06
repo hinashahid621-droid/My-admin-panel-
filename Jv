@@ -1,0 +1,65 @@
+// =======================================================
+// AAPKA URL PEHLE SE SET HAI.
+// BAS NEECHE WALI LINE MEIN APNI API KEY DAALEIN.
+// =======================================================
+const SUPABASE_URL = 'https://spxyppywdbgdjithesrd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNweHlwcHl3ZGJnZGppdGhlc3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwOTcxODYsImV4cCI6MjA3MjY3MzE4Nn0.9fFcEBHhTmiGfp1K_J6RcgadkO1njcIRif_S6_a7KGI'; // <-- SIRF IS JAGAH PAR
+
+// Neeche code ko change na karein
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// =======================================================
+
+// DOM Elements ko select karna
+const userForm = document.getElementById('user-form');
+const nameInput = document.getElementById('name-input');
+const telegramIdInput = document.getElementById('telegram-id-input');
+const pointsInput = document.getElementById('points-input');
+const userList = document.getElementById('user-list');
+
+// Function: Database se saare users la kar screen par dikhana
+async function fetchUsers() {
+    let { data: users, error } = await supabase
+        .from('users')
+        .select('*');
+
+    if (error) {
+        console.error('Error fetching users:', error);
+    } else {
+        userList.innerHTML = ''; 
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = `Name: ${user.name}, TG ID: ${user.telegram_id}, Points: ${user.points}`;
+            userList.appendChild(li);
+        });
+    }
+}
+
+// Function: Naya user database mein add karna
+async function addUser(event) {
+    event.preventDefault();
+
+    const newName = nameInput.value;
+    const newTelegramId = telegramIdInput.value;
+    const newPoints = pointsInput.value;
+
+    const { data, error } = await supabase
+        .from('users')
+        .insert([
+            { name: newName, telegram_id: newTelegramId, points: newPoints }
+        ]);
+
+    if (error) {
+        console.error('Error adding user:', error);
+        alert('User add nahi ho saka!');
+    } else {
+        alert('User add ho gaya!');
+        userForm.reset();
+        fetchUsers();
+    }
+}
+
+// Event Listener
+userForm.addEventListener('submit', addUser);
+
+// Page load hotay hi saare users dikhao
+fetchUsers();
